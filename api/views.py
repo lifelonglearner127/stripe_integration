@@ -16,7 +16,8 @@ class GetConnectAccountLink(APIView):
         if connect_account:
             if connect_account.enabled:
                 login_link = stripe.Account.create_login_link(
-                    connect_account.account_id
+                    connect_account.account_id,
+                    redirect_url="http://localhost:3000"
                 )
                 return Response({"url": login_link.url})
             else:
@@ -37,6 +38,20 @@ class GetConnectAccountLink(APIView):
 
         return Response({"url": account_links.url})
 
+
+class GetBalance(APIView):
+    def get(self, request):
+        user = User.objects.get(email="test@test.com")
+        balance = stripe.Balance.retrieve(
+            stripe_account=user.account.account_id,
+        )
+        return Response(
+            {
+                "balanceAvailable": balance.available[0].amount,
+                "balancePending": balance.pending[0].amount,
+            }
+        )
+    
 
 class ConnectedAccountWebhook(APIView):
     def post(self, request):
