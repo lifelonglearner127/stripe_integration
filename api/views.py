@@ -53,6 +53,22 @@ class GetBalance(APIView):
         )
     
 
+class MakePayout(APIView):
+    def post(self, request):
+        user = User.objects.get(email="test@test.com")
+        balance = stripe.Balance.retrieve(
+            stripe_account=user.account.account_id,
+        )
+
+        print(balance)
+        payout = stripe.Payout.create(
+            amount=balance.available[0].amount,
+            currency=balance.available[0].currency,
+            stripe_account=user.account.account_id,
+        )
+        return Response(status=status.HTTP_200_OK)
+
+
 class ConnectedAccountWebhook(APIView):
     def post(self, request):
         data = request.data
