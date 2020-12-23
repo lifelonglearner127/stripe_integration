@@ -133,7 +133,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
-ALLOWED_HOSTS = ["localhost", "ec9a9f89e1c5.ngrok.io"]
+ALLOWED_HOSTS = ["localhost", "154b524ef7d9.ngrok.io"]
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
