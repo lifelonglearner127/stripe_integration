@@ -69,28 +69,30 @@ class MakePayout(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class ConnectedAccountWebhook(APIView):
+class Webhook(APIView):
     def post(self, request):
-        data = request.data
-        if data["type"] != "account.updated":
-            return Response({"msg": ""})
-
-        account_data = data["data"]["object"]
-        if not account_data["charges_enabled"] or not account_data["details_submitted"]:
-            return Response({"msg": ""})
-
-        try:
-            account = Account.objects.get(account_id=data["data"]["object"]["id"])
+        # try:
+        #     event = stripe.Webhook.construct_event(
+        #         payload=request.data,
+        #         sig_header=signature,
+        #         secret="whsec_dk8OsQJUBnmgzDsjRflgS8V5Bg5LHBNO",
+        #     )
+        # except ValueError as e:
+        #     return Response(status=400)
+        # except stripe.error.SignatureVerificationError as e:
+        #     return Response(status=400)
+        event = request.data
+        print(event)
+        if event["type"] == "account.updated":
+            account = Account.objects.get(account_id=event["data"]["object"]["id"])
             if not account.enabled:
                 account.enabled = True
                 account.save()
 
-        except KeyError:
-            raise KeyError      # raise payload error
-        except Account.DoesNotExist:
-            pass
-        finally:
-            return Response({"msg": "msg"})            
+        elif event["type"] == "checkout.session.completed":
+            print("session")
+
+        return Response(status=200)
 
 
 class CreateCheckoutSession(APIView):
